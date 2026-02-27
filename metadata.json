@@ -1,0 +1,7 @@
+{
+  "name": "Campus Reconnect",
+  "description": "A secure campus lost and found platform with verification-based claiming.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
