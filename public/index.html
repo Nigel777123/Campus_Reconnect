@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campus Reconnect</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <!-- ── Navigation ─────────────────────────────────── -->
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">🎓</span>
+        <span class="logo-text">Campus<strong>Reconnect</strong></span>
+      </div>
+      <nav>
+        <button class="nav-btn active" data-view="home">Home</button>
+        <button class="nav-btn" data-view="report-lost">Report Lost</button>
+        <button class="nav-btn" data-view="report-found">Report Found</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ── Home / Browse ──────────────────────────────── -->
+    <section id="view-home" class="view active">
+      <div class="hero">
+        <h1>Lost Something? Found Something?</h1>
+        <p>Campus Reconnect helps university students and staff safely return lost belongings to their rightful owners through a secure, community-driven verification system.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" data-view="report-lost">Report Lost Item</button>
+          <button class="btn btn-secondary" data-view="report-found">Report Found Item</button>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="lost-list">Lost Items</button>
+        <button class="tab-btn" data-tab="found-list">Found Items</button>
+      </div>
+
+      <!-- Lost Items list -->
+      <div id="lost-list" class="tab-panel active">
+        <div class="list-header">
+          <h2>Reported Lost Items</h2>
+          <span class="badge" id="lost-count">0</span>
+        </div>
+        <div id="lost-items-container" class="items-grid">
+          <p class="loading">Loading…</p>
+        </div>
+      </div>
+
+      <!-- Found Items list -->
+      <div id="found-list" class="tab-panel">
+        <div class="list-header">
+          <h2>Found Items — Awaiting Owners</h2>
+          <span class="badge" id="found-count">0</span>
+        </div>
+        <div id="found-items-container" class="items-grid">
+          <p class="loading">Loading…</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Report Lost ─────────────────────────────────── -->
+    <section id="view-report-lost" class="view">
+      <div class="form-card">
+        <h2>📋 Report a Lost Item</h2>
+        <p class="form-subtitle">Fill in the details below. You can optionally add a reward to motivate finders.</p>
+
+        <form id="form-lost" novalidate>
+          <div class="form-group">
+            <label for="lost-title">Item Name <span class="required">*</span></label>
+            <input type="text" id="lost-title" placeholder="e.g. Blue backpack" required />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="lost-category">Category <span class="required">*</span></label>
+              <select id="lost-category" required>
+                <option value="">Select…</option>
+                <option>Bag / Backpack</option>
+                <option>Electronics</option>
+                <option>Keys</option>
+                <option>Wallet / ID</option>
+                <option>Clothing</option>
+                <option>Books / Stationery</option>
+                <option>Sports Equipment</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="lost-location">Last Seen Location <span class="required">*</span></label>
+              <input type="text" id="lost-location" placeholder="e.g. Library 2nd floor" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="lost-description">Description <span class="required">*</span></label>
+            <textarea id="lost-description" rows="3" placeholder="Describe the item in detail (colour, brand, distinguishing features…)" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="lost-email">Your Contact Email <span class="required">*</span></label>
+            <input type="email" id="lost-email" placeholder="you@university.edu" required />
+          </div>
+
+          <!-- ── Reward Module ──────────────────────── -->
+          <fieldset class="reward-section">
+            <legend>🏆 Incentive / Reward <span class="optional">(optional)</span></legend>
+            <p class="field-hint">Offering a reward significantly increases the chance of recovery.</p>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="lost-reward-amount">Reward Amount (£)</label>
+                <input type="number" id="lost-reward-amount" placeholder="0" min="0" step="0.01" />
+              </div>
+              <div class="form-group">
+                <label for="lost-reward-desc">Reward Description</label>
+                <input type="text" id="lost-reward-desc" placeholder="e.g. £10 gift card, coffee voucher" />
+              </div>
+            </div>
+          </fieldset>
+
+          <div id="lost-form-msg" class="form-msg hidden"></div>
+
+          <button type="submit" class="btn btn-primary btn-full">Submit Lost Report</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ── Report Found ────────────────────────────────── -->
+    <section id="view-report-found" class="view">
+      <div class="form-card">
+        <h2>🔍 Report a Found Item</h2>
+        <p class="form-subtitle">Thank you for being honest! Set a verification question so only the true owner can claim this item.</p>
+
+        <form id="form-found" novalidate>
+          <div class="form-group">
+            <label for="found-title">Item Name <span class="required">*</span></label>
+            <input type="text" id="found-title" placeholder="e.g. Silver laptop" required />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="found-category">Category <span class="required">*</span></label>
+              <select id="found-category" required>
+                <option value="">Select…</option>
+                <option>Bag / Backpack</option>
+                <option>Electronics</option>
+                <option>Keys</option>
+                <option>Wallet / ID</option>
+                <option>Clothing</option>
+                <option>Books / Stationery</option>
+                <option>Sports Equipment</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="found-location">Where Found <span class="required">*</span></label>
+              <input type="text" id="found-location" placeholder="e.g. Near the café entrance" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="found-description">Description <span class="required">*</span></label>
+            <textarea id="found-description" rows="3" placeholder="Describe what you found (colour, brand, condition…)" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="found-email">Your Contact Email <span class="required">*</span></label>
+            <input type="email" id="found-email" placeholder="you@university.edu" required />
+          </div>
+
+          <!-- ── Verification Question Module ──────── -->
+          <fieldset class="verification-section">
+            <legend>🔐 Verification Question <span class="required">*</span></legend>
+            <p class="field-hint">Set a question that <em>only the true owner</em> can answer. Avoid generic questions. Examples: "What sticker is on the lid?" or "What is the lock screen wallpaper?"</p>
+            <div class="form-group">
+              <label for="found-vq">Verification Question <span class="required">*</span></label>
+              <input type="text" id="found-vq" placeholder="e.g. What colour is the lanyard attached to the keys?" required />
+            </div>
+            <div class="form-group">
+              <label for="found-va">Correct Answer <span class="required">*</span></label>
+              <input type="text" id="found-va" placeholder="The exact answer (stored securely, not shown publicly)" required />
+              <small class="field-hint">The answer is stored and compared case-insensitively. It will never be displayed to potential claimants.</small>
+            </div>
+          </fieldset>
+
+          <div id="found-form-msg" class="form-msg hidden"></div>
+
+          <button type="submit" class="btn btn-primary btn-full">Submit Found Report</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ── Claim Modal ─────────────────────────────────── -->
+    <div id="claim-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="claim-modal-title">
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <button class="modal-close" aria-label="Close">&times;</button>
+        <h2 id="claim-modal-title">🔑 Claim This Item</h2>
+        <p id="claim-item-name" class="modal-item-name"></p>
+        <p class="modal-hint">Answer the verification question set by the finder to prove ownership.</p>
+
+        <div class="verification-question-box">
+          <span class="vq-label">Verification Question:</span>
+          <span id="claim-question" class="vq-text"></span>
+        </div>
+
+        <form id="form-claim" novalidate>
+          <input type="hidden" id="claim-item-id" />
+          <div class="form-group">
+            <label for="claim-email">Your Email <span class="required">*</span></label>
+            <input type="email" id="claim-email" placeholder="you@university.edu" required />
+          </div>
+          <div class="form-group">
+            <label for="claim-answer">Your Answer <span class="required">*</span></label>
+            <input type="text" id="claim-answer" placeholder="Enter the answer…" required />
+          </div>
+          <div id="claim-msg" class="form-msg hidden"></div>
+          <button type="submit" class="btn btn-primary btn-full">Verify &amp; Claim</button>
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <p>Campus Reconnect &copy; 2024 — Helping students reclaim what's theirs, safely.</p>
+  </footer>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
