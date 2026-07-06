@@ -45,7 +45,9 @@ export const api = {
       const params = new URLSearchParams();
       if (filters) {
         Object.entries(filters).forEach(([k, v]) => {
-          if (v && v.trim()) params.set(k, v.trim());
+          if (v !== undefined && v !== "") {
+            params.set(k, String(v).trim());
+          }
         });
       }
       const qs = params.toString();

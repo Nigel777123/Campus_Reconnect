@@ -1,3 +1,4 @@
+import React from "react";
 import { useState, useRef } from "react";
 import { Upload, X, Image } from "lucide-react";
 

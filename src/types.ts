@@ -99,12 +99,17 @@ export interface DashboardData {
 
 // ── Filter types ─────────────────────────────────────────────────────────────
 export interface ItemFilters {
-  q: string;
-  type: string;
-  category: string;
-  status: string;
-  date_from: string;
-  date_to: string;
+  q?: string;
+  search?: string;
+  type?: string;
+  category?: string;
+  status?: string;
+  date_from?: string;
+  dateFrom?: string;
+  date_to?: string;
+  dateTo?: string;
+  page?: number;
+  limit?: number;
 }
 
 // ── Campus buildings ─────────────────────────────────────────────────────────

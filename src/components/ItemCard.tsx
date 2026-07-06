@@ -1,137 +1,119 @@
+import React from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Calendar, Tag, Clock } from "lucide-react";
 import type { Item } from "../types";
-import { CATEGORY_META } from "../types";
+import { MapPin, Clock } from "lucide-react";
+
+const CATEGORY_ICONS: Record<string, string> = {
+  electronics: "💻", "id/cards": "🪪", clothing: "👕",
+  keys: "🔑", bags: "🎒", other: "📦",
+};
+
+const TILTS = [-1.8, 0.8, -0.5, 1.4, -1.2, 0.6, -0.3, 1.5, -0.9, 0.4];
 
 interface Props {
   item: Item;
+  index?: number;
+  key?: React.Key;
 }
 
-export default function ItemCard({ item }: Props) {
-  const isLost = item.type === "lost";
-  const isResolved = item.status === "resolved";
-  const catMeta = CATEGORY_META[item.category] ?? CATEGORY_META.other;
-  const questions = (() => {
-    try { return JSON.parse(item.verification_questions || "[]"); } catch { return []; }
-  })();
+function timeAgo(dateStr: string) {
+  const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+  if (seconds < 60) return "just now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+export default function ItemCard({ item, index = 0 }: Props) {
+  const tilt  = TILTS[item.id % TILTS.length];
+  const delay = Math.min(index * 0.06, 0.6);
+  const icon  = CATEGORY_ICONS[item.category?.toLowerCase() ?? ""] ?? "📦";
 
   return (
     <Link
       to={`/items/${item.id}`}
-      style={{ textDecoration: "none", display: "block" }}
+      className="item-card"
+      style={{
+        "--card-tilt":  `${tilt}deg`,
+        "--card-delay": `${delay}s`,
+      } as React.CSSProperties}
     >
-      <div
-        className={`card glass ${isLost ? "lost-glow" : "found-glow"}`}
-        style={{ opacity: isResolved ? 0.65 : 1 }}
-      >
-        {/* Image */}
-        <div style={{
-          height: "180px", overflow: "hidden", position: "relative",
-          background: isLost
-            ? "linear-gradient(135deg, rgba(180,83,9,0.25), rgba(120,53,15,0.15))"
-            : "linear-gradient(135deg, rgba(15,118,110,0.25), rgba(6,95,70,0.15))",
-        }}>
-          {item.image_url ? (
+      {/* Photo or category icon */}
+      <div style={{ position: "relative" }}>
+        {item.image_url ? (
+          <div style={{ height: "160px", overflow: "hidden", background: "var(--paper-warm)" }}>
             <img
               src={item.image_url}
               alt={item.title}
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              loading="lazy"
             />
-          ) : (
-            <div style={{
-              width: "100%", height: "100%",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: "3.5rem", opacity: 0.6
-            }}>
-              {catMeta.emoji}
-            </div>
-          )}
-          {/* Type badge overlay */}
-          <div style={{
-            position: "absolute", top: "0.75rem", left: "0.75rem",
-            display: "flex", gap: "0.375rem"
-          }}>
-            <span className={`badge badge-${item.type}`}>
-              {isLost ? "🔍" : "✅"} {item.type}
-            </span>
-            {isResolved && <span className="badge badge-resolved">Resolved</span>}
           </div>
-          {/* Verification Q count badge for found items */}
-          {!isLost && questions.length > 0 && (
-            <div style={{
-              position: "absolute", top: "0.75rem", right: "0.75rem",
-              background: "rgba(0,0,0,0.6)", borderRadius: "6px",
-              padding: "0.2rem 0.5rem", fontSize: "0.7rem", color: "#94a3b8",
-              display: "flex", alignItems: "center", gap: "0.3rem"
-            }}>
-              🔒 {questions.length} Q
-            </div>
-          )}
+        ) : (
+          <div style={{
+            height: "100px", display: "flex", alignItems: "center", justifyContent: "center",
+            background: item.type === "lost"
+              ? "linear-gradient(135deg, var(--lost-bg), #F0DED7)"
+              : "linear-gradient(135deg, var(--found-bg), #D0E8E0)",
+            fontSize: "2.5rem",
+          }}>
+            {icon}
+          </div>
+        )}
+
+        {/* Status badge — absolute top-left */}
+        <div style={{ position: "absolute", top: "10px", left: "10px", zIndex: 4 }}>
+          <span className={`badge badge-${item.type}`}>{item.type}</span>
         </div>
+      </div>
 
-        {/* Content */}
-        <div style={{ padding: "1rem" }}>
-          {/* Category + title */}
-          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.375rem" }}>
-            <span style={{ fontSize: "0.8rem" }}>{catMeta.emoji}</span>
-            <span style={{ fontSize: "0.75rem", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-              {catMeta.label}
-            </span>
+      {/* Card body */}
+      <div style={{ padding: "1rem 1rem .875rem" }}>
+        {/* Title */}
+        <h3 style={{
+          fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "1.05rem",
+          color: "var(--ink-navy)", margin: "0 0 .5rem", lineHeight: 1.3,
+          paddingRight: "1rem", /* clear folded corner */
+        }}>{item.title}</h3>
+
+        {/* Description */}
+        {item.description && (
+          <p style={{
+            fontSize: ".82rem", color: "var(--text-muted)",
+            margin: "0 0 .75rem", lineHeight: 1.5,
+            display: "-webkit-box", WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical", overflow: "hidden",
+          }}>{item.description}</p>
+        )}
+
+        {/* Metadata — mono font, like index card */}
+        <div style={{ display: "flex", flexDirection: "column", gap: ".3rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: ".35rem", fontSize: ".72rem", fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>
+            <MapPin size={11} style={{ color: "var(--brass)", flexShrink: 0 }} />
+            <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.location}</span>
           </div>
-          <h3 style={{
-            margin: "0 0 0.5rem", fontSize: "0.975rem", fontWeight: 600,
-            color: "#f1f5f9", lineHeight: 1.3,
-            display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden"
-          }}>{item.title}</h3>
-
-          {item.description && (
-            <p style={{
-              margin: "0 0 0.75rem", fontSize: "0.8rem", color: "#64748b",
-              display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", lineHeight: 1.5
-            }}>{item.description}</p>
-          )}
-
-          {/* Meta row */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
-            {item.location && (
-              <div style={{ display: "flex", alignItems: "center", gap: "0.375rem", fontSize: "0.78rem", color: "#64748b" }}>
-                <MapPin size={12} style={{ flexShrink: 0 }} />
-                <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.location}</span>
-              </div>
-            )}
-            {item.date && (
-              <div style={{ display: "flex", alignItems: "center", gap: "0.375rem", fontSize: "0.78rem", color: "#64748b" }}>
-                <Calendar size={12} style={{ flexShrink: 0 }} />
-                <span>{new Date(item.date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Footer */}
-          <div style={{
-            marginTop: "0.875rem", paddingTop: "0.75rem",
-            borderTop: "1px solid rgba(255,255,255,0.05)",
-            display: "flex", justifyContent: "space-between", alignItems: "center"
-          }}>
-            <span style={{ fontSize: "0.75rem", color: "#475569" }}>
-              by {item.poster_name || "Anonymous"}
-            </span>
-            <span style={{ fontSize: "0.72rem", color: "#334155" }}>
-              {timeAgo(item.created_at)}
-            </span>
+          <div style={{ display: "flex", alignItems: "center", gap: ".35rem", fontSize: ".72rem", fontFamily: "var(--font-mono)", color: "var(--text-faint)" }}>
+            <Clock size={11} style={{ flexShrink: 0 }} />
+            {timeAgo(item.created_at)}
           </div>
         </div>
       </div>
+
+      {/* Status ribbon for resolved items */}
+      {item.status === "resolved" && (
+        <div style={{
+          background: "var(--found-bg)", borderTop: "1px solid rgba(47,93,80,.2)",
+          padding: ".4rem 1rem", fontSize: ".7rem", fontFamily: "var(--font-mono)",
+          color: "var(--found-green)", fontWeight: 600, letterSpacing: ".05em",
+          textTransform: "uppercase",
+        }}>
+          ✓ Resolved
+        </div>
+      )}
     </Link>
   );
-}
-
-function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
 }
